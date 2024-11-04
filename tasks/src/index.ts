@@ -1,4 +1,7 @@
 import path from 'path';
+import { config } from 'dotenv';
+
+config();
 
 function main() {
   try {

@@ -43,3 +43,6 @@ dist/
 tmp/
 temp/
 *.tmp
+
+# Course data
+resources/

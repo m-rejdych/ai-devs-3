@@ -1,7 +1,3 @@
-import { config } from 'dotenv';
-
-config();
-
 interface SubmitResponseData {
   code: number;
   message: string;

@@ -1,4 +1,4 @@
-import { submit } from './util';
+import { submit } from '@/util/tasks';
 
 async function main(): Promise<void> {
   try {

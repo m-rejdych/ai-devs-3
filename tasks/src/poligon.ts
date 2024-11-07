@@ -6,7 +6,7 @@ async function main(): Promise<void> {
     const text = await response.text();
 
     const lines = text.split(/\r?\n/);
-    const result = await submit('POLIGON', lines.filter(Boolean));
+    const result = await submit('POLIGON', lines.filter(Boolean), 'poligon');
 
     console.log(result);
   } catch (error) {

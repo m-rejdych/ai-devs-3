@@ -3,8 +3,24 @@ interface SubmitResponseData {
   message: string;
 }
 
-export async function submit(task: string, answer: unknown): Promise<SubmitResponseData> {
-  const response = await fetch(process.env.SUBMIT_URL as string, {
+type Target = 'poligon' | 'central';
+
+function getTargetSubmitUrl(target: Target): string {
+  switch (target) {
+    case 'poligon':
+      return process.env.POLIGON_SUBMIT_URL as string;
+    case 'central':
+    default:
+      return process.env.CENTRAL_SUBMIT_URL as string;
+  }
+}
+
+export async function submit(
+  task: string,
+  answer: unknown,
+  target: 'poligon' | 'central' = 'central',
+): Promise<SubmitResponseData> {
+  const response = await fetch(getTargetSubmitUrl(target) as string, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

@@ -2,7 +2,7 @@ import { submit } from '@/util/tasks';
 
 async function main(): Promise<void> {
   try {
-    const response = await fetch('https://poligon.aidevs.pl/dane.txt');
+    const response = await fetch(`${process.env.POLIGON_API_URL}/dane.txt`);
     const text = await response.text();
 
     const lines = text.split(/\r?\n/);

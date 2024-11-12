@@ -48,7 +48,7 @@ const CONTEXT =
 async function main(): Promise<void> {
   try {
     const response = await fetch(
-      `https://centrala.ag3nts.org/data/${process.env.AI_DEVS_API_KEY}/json.txt`,
+      `${process.env.CENTRAL_API_URL}/data/${process.env.AI_DEVS_API_KEY}/json.txt`,
     );
     const { 'test-data': testData, apikey, ...rest } = (await response.json()) as JsonData;
 

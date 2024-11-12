@@ -8,10 +8,10 @@ type Target = 'poligon' | 'central';
 function getTargetSubmitUrl(target: Target): string {
   switch (target) {
     case 'poligon':
-      return process.env.POLIGON_SUBMIT_URL as string;
+      return `${process.env.POLIGON_API_URL}/verify`;
     case 'central':
     default:
-      return process.env.CENTRAL_SUBMIT_URL as string;
+      return `${process.env.CENTRAL_API_URL}/report`;
   }
 }
 

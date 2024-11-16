@@ -17,3 +17,20 @@ export function extractJsonObj(str: string): Record<string, unknown> | null {
 
   return parsedJson;
 }
+
+export function extractExtension(filename: string): string | null {
+  const extensionIdx = filename.lastIndexOf('.');
+  if (extensionIdx === -1) return null;
+
+  return filename.slice(extensionIdx + 1);
+}
+
+export function extractXmlTag(text: string, tagName: string): string | null {
+  const startIdx = text.indexOf(`<${tagName}>`) + tagName.length + 2;
+  if (startIdx === -1) return null;
+
+  const endIdx = text.indexOf(`</${tagName}>`);
+  if (endIdx === -1) return null;
+
+  return text.slice(startIdx, endIdx).trim();
+}

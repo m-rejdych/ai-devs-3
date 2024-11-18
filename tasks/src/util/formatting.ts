@@ -8,10 +8,10 @@ export function isResultObj(val: unknown): val is ResultObj {
 
 export function extractJsonObj(str: string): Record<string, unknown> | null {
   const startOfJsonIndex = str.indexOf('{');
-  if (!startOfJsonIndex) return null;
+  if (startOfJsonIndex === -1) return null;
 
   const endOfJsonIndex = str.lastIndexOf('}');
-  if (!endOfJsonIndex) return null;
+  if (endOfJsonIndex === -1) return null;
 
   const parsedJson = JSON.parse(str.slice(startOfJsonIndex, endOfJsonIndex + 1));
 

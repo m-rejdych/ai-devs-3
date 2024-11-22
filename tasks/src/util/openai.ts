@@ -20,7 +20,7 @@ type GetChatCompletionArgs = GetChatCompletionQueryArgs | GetChatCompletionMessa
 
 export async function getChatCompletion({
   context,
-  model = 'gpt-4o',
+  model = 'gpt-4o-mini',
   temperature = 0.3,
   ...args
 }: GetChatCompletionArgs): Promise<string | null> {

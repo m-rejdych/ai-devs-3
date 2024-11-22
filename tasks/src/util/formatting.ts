@@ -13,9 +13,17 @@ export function extractJsonObj(str: string): Record<string, unknown> | null {
   const endOfJsonIndex = str.lastIndexOf('}');
   if (endOfJsonIndex === -1) return null;
 
-  const parsedJson = JSON.parse(str.slice(startOfJsonIndex, endOfJsonIndex + 1));
+  return JSON.parse(str.slice(startOfJsonIndex, endOfJsonIndex + 1));
+}
 
-  return parsedJson;
+export function extractJsonArray(str: string): unknown[] | null {
+  const startOfArrayIdx = str.indexOf('[');
+  if (startOfArrayIdx === -1) return null;
+
+  const endOfArrayIdx = str.lastIndexOf(']');
+  if (endOfArrayIdx === -1) return null;
+
+  return JSON.parse(str.slice(startOfArrayIdx, endOfArrayIdx + 1));
 }
 
 export function extractExtension(filename: string): string | null {

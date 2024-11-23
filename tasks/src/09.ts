@@ -1,9 +1,8 @@
 import path from 'path';
 import { readdir, readFile } from 'fs/promises';
-import { createReadStream } from 'fs';
 
 import { extractExtension, extractXmlTag } from '@/util/formatting';
-import { getChatCompletion, getTranscriptionCompletion } from '@/util/openai';
+import { getChatCompletion, getTranscriptionCompletion, getImagesCompletion } from '@/util/openai';
 import { submit } from '@/util/tasks';
 
 interface Answer {
@@ -74,22 +73,10 @@ async function main(): Promise<void> {
             break;
           }
           case 'png': {
-            const completion = await getChatCompletion({
-              context: CONTEXT,
-              messages: [
-                {
-                  role: 'user',
-                  content: [
-                    {
-                      type: 'image_url',
-                      image_url: {
-                        url: `data:image/png;base64,${reportContent.toString('base64')}`,
-                      },
-                    },
-                  ],
-                },
-              ],
-            });
+            const completion = await getImagesCompletion(
+              [`data:image/png;base64,${reportContent.toString('base64')}`],
+              { context: CONTEXT },
+            );
             if (!completion) break;
             console.log(`--- ${report} ---`, completion);
 

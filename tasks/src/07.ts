@@ -1,7 +1,7 @@
 import { readdir, readFile } from 'fs/promises';
 import path from 'path';
 
-import { getChatCompletion } from '@/util/openai';
+import { getImagesCompletion } from '@/util/openai';
 
 const CONTEXT =
   `Your job is to detect the name of the Polish city presented on provided images. Hint is that in this city were some granaries and fortresses. Gather all useful information such as street names and characteristc points. One image is invalid and represents different city - ignore it. Respond with just the city name and nothing more.` as string;
@@ -20,14 +20,8 @@ async function main(): Promise<void> {
       }),
     );
 
-    const completion = await getChatCompletion({
+    const completion = await getImagesCompletion(imagesBase64Urls, {
       context: CONTEXT,
-      messages: [
-        {
-          role: 'user',
-          content: imagesBase64Urls.map((url) => ({ type: 'image_url', image_url: { url } })),
-        },
-      ],
       model: 'gpt-4o',
     });
 

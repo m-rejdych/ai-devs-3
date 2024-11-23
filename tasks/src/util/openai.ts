@@ -77,3 +77,23 @@ export async function getTranscriptionCompletion(
 
   return getChatCompletion({ query: transcription, ...completionParams });
 }
+
+export async function getImagesCompletion(
+  base64ImagesUrls: string[],
+  { query, ...completionArgs }: Partial<GetChatCompletionQueryArgs> = {},
+): Promise<string | null> {
+  const messageContents: OpenAI.Chat.Completions.ChatCompletionContentPart[] = [];
+
+  if (query) {
+    messageContents.push({ type: 'text', text: query });
+  }
+
+  base64ImagesUrls.forEach((base64ImageUrl) => {
+    messageContents.push({ type: 'image_url', image_url: { url: base64ImageUrl } });
+  });
+
+  return getChatCompletion({
+    messages: [{ role: 'user', content: messageContents }],
+    ...completionArgs,
+  });
+}

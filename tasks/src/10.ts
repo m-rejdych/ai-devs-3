@@ -1,9 +1,9 @@
 import path from 'path';
 import { writeFile, readFile, rm } from 'fs/promises';
-import { createReadStream, existsSync } from 'fs';
+import { existsSync } from 'fs';
 import * as cheerio from 'cheerio';
 
-import { getChatCompletion, getTranscriptionCompletion } from '@/util/openai';
+import { getChatCompletion, getTranscriptionCompletion, getImagesCompletion } from '@/util/openai';
 import { extractXmlTag, extractJsonObj } from '@/util/formatting';
 import { submit } from '@/util/tasks';
 
@@ -234,22 +234,10 @@ async function main(): Promise<void> {
           const arrayBuffer = await response.arrayBuffer();
           const base64Img = Buffer.from(arrayBuffer).toString('base64');
 
-          const imageCompletion = await getChatCompletion({
-            context: getImageContext(caption, summary, questionValues),
-            messages: [
-              {
-                role: 'user',
-                content: [
-                  {
-                    type: 'image_url',
-                    image_url: {
-                      url: `data:${response.headers.get('content-type')};base64,${base64Img}`,
-                    },
-                  },
-                ],
-              },
-            ],
-          });
+          const imageCompletion = await getImagesCompletion(
+            [`data:${response.headers.get('content-type')};base64,${base64Img}`],
+            { context: getImageContext(caption, summary, questionValues) },
+          );
           if (imageCompletion) {
             const extractedSummary = extractXmlTag(imageCompletion, 'final_answer');
             if (extractedSummary) summary += `\n${extractedSummary}`;

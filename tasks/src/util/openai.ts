@@ -97,3 +97,12 @@ export async function getImagesCompletion(
     ...completionArgs,
   });
 }
+
+export async function createEmbedding(
+  text: string,
+  model: OpenAI.EmbeddingCreateParams['model'] = 'text-embedding-3-small',
+): Promise<number[] | null> {
+  const embedding = await openai.embeddings.create({ input: text, model });
+
+  return embedding.data[0]?.embedding ?? null;
+}

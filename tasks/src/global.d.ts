@@ -7,5 +7,7 @@ declare namespace NodeJS {
     OPENAI_PROJECT_ID?: string;
     OPENAI_ORG_ID?: string;
     OLLAMA_API_URL?: string;
+    QDRANT_API_KEY?: string;
+    QDRANT_URL?: string;
   }
 }

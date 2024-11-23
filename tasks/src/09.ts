@@ -2,9 +2,8 @@ import path from 'path';
 import { readdir, readFile } from 'fs/promises';
 import { createReadStream } from 'fs';
 
-import { openai } from '@/clients/openai';
 import { extractExtension, extractXmlTag } from '@/util/formatting';
-import { getChatCompletion } from '@/util/openai';
+import { getChatCompletion, getTranscriptionCompletion } from '@/util/openai';
 import { submit } from '@/util/tasks';
 
 interface Answer {
@@ -101,12 +100,10 @@ async function main(): Promise<void> {
             break;
           }
           case 'mp3': {
-            const { text } = await openai.audio.transcriptions.create({
-              model: 'whisper-1',
-              language: 'pl',
-              file: createReadStream(reportPath),
-            });
-            const completion = await getChatCompletion({ context: CONTEXT, query: text });
+            const completion = await getTranscriptionCompletion(
+              { filePath: reportPath },
+              { context: CONTEXT },
+            );
             if (!completion) break;
             console.log(`--- ${report} ---`, completion);
 

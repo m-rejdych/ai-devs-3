@@ -3,8 +3,7 @@ import { writeFile, readFile, rm } from 'fs/promises';
 import { createReadStream, existsSync } from 'fs';
 import * as cheerio from 'cheerio';
 
-import { openai } from '@/clients/openai';
-import { getChatCompletion } from '@/util/openai';
+import { getChatCompletion, getTranscriptionCompletion } from '@/util/openai';
 import { extractXmlTag, extractJsonObj } from '@/util/formatting';
 import { submit } from '@/util/tasks';
 
@@ -211,16 +210,16 @@ async function main(): Promise<void> {
     if (existsSync(path.join('..', 'resources', 'arxiv-summary.txt'))) {
       summary = (await readFile(path.join('..', 'resources', 'arxiv-summary.txt'))).toString();
     } else {
-    $('div.container')
-      .children()
-      .each(parseSection($, currentTitle, sections));
+      $('div.container')
+        .children()
+        .each(parseSection($, currentTitle, sections));
 
-    await writeFile(
-      path.join('..', 'resources', 'arxiv-draft-parsed.json'),
-      JSON.stringify(sections),
-    );
+      await writeFile(
+        path.join('..', 'resources', 'arxiv-draft-parsed.json'),
+        JSON.stringify(sections),
+      );
 
-    for (const [title, { text, images, audio }] of Object.entries(sections)) {
+      for (const [title, { text, images, audio }] of Object.entries(sections)) {
         const textCompletion = await getChatCompletion({
           context: getTextContext(title, summary, questionValues),
           query: text,
@@ -231,61 +230,55 @@ async function main(): Promise<void> {
         }
 
         for (const { url, caption } of images) {
-            const response = await fetch(url);
-            const arrayBuffer = await response.arrayBuffer();
-            const base64Img = Buffer.from(arrayBuffer).toString('base64');
+          const response = await fetch(url);
+          const arrayBuffer = await response.arrayBuffer();
+          const base64Img = Buffer.from(arrayBuffer).toString('base64');
 
-            const imageCompletion = await getChatCompletion({
-              context: getImageContext(caption, summary, questionValues),
-              messages: [
-                {
-                  role: 'user',
-                  content: [
-                    {
-                      type: 'image_url',
-                      image_url: {
-                        url: `data:${response.headers.get('content-type')};base64,${base64Img}`,
-                      },
+          const imageCompletion = await getChatCompletion({
+            context: getImageContext(caption, summary, questionValues),
+            messages: [
+              {
+                role: 'user',
+                content: [
+                  {
+                    type: 'image_url',
+                    image_url: {
+                      url: `data:${response.headers.get('content-type')};base64,${base64Img}`,
                     },
-                  ],
-                },
-              ],
-            });
-            if (imageCompletion) {
-              const extractedSummary = extractXmlTag(imageCompletion, 'final_answer');
-              if (extractedSummary) summary += `\n${extractedSummary}`;
-            }
+                  },
+                ],
+              },
+            ],
+          });
+          if (imageCompletion) {
+            const extractedSummary = extractXmlTag(imageCompletion, 'final_answer');
+            if (extractedSummary) summary += `\n${extractedSummary}`;
+          }
         }
 
         for (const { url } of audio) {
-            const response = await fetch(url);
-            const arrayBuffer = await response.arrayBuffer();
-            const buffer = Buffer.from(arrayBuffer);
-            const tempFilePath = path.join(process.cwd(), 'temp-audio.mp3');
+          const response = await fetch(url);
+          const arrayBuffer = await response.arrayBuffer();
+          const buffer = Buffer.from(arrayBuffer);
+          const tempFilePath = path.join(process.cwd(), 'temp-audio.mp3');
 
-            await writeFile(tempFilePath, buffer);
+          await writeFile(tempFilePath, buffer);
 
-            const { text } = await openai.audio.transcriptions.create({
-              model: 'whisper-1',
-              language: 'pl',
-              file: createReadStream(tempFilePath),
-            });
+          const audioCompletion = await getTranscriptionCompletion(
+            { filePath: tempFilePath },
+            { context: getAudioContext(summary, questionValues) },
+          );
 
-            await rm(tempFilePath);
+          await rm(tempFilePath);
 
-            const audioCompletion = await getChatCompletion({
-              context: getAudioContext(summary, questionValues),
-              query: text,
-            });
-            if (audioCompletion) {
-              const extractedSummary = extractXmlTag(audioCompletion, 'final_answer');
-              if (extractedSummary) summary += `\n${extractedSummary}`;
-            }
+          if (audioCompletion) {
+            const extractedSummary = extractXmlTag(audioCompletion, 'final_answer');
+            if (extractedSummary) summary += `\n${extractedSummary}`;
+          }
         }
 
         console.log('CURRENT SUMMARY', summary);
-
-    }
+      }
     }
 
     console.log('FULL SUMMARY', summary);

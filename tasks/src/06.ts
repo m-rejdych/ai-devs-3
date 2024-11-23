@@ -3,8 +3,7 @@ import { createReadStream, existsSync } from 'fs';
 import path from 'path';
 import type OpenAI from 'openai';
 
-import { openai } from '@/clients/openai';
-import { getChatCompletion } from '@/util/openai';
+import { getChatCompletion, getTranscription } from '@/util/openai';
 import { extractJsonObj, isResultObj } from '@/util/formatting';
 import { submit } from '@/util/tasks';
 
@@ -52,14 +51,9 @@ async function main(): Promise<void> {
       files
         .filter((file) => !(file.slice(0, -4) in parsedTranscriptions))
         .map(async (file) => {
-          const transcription: OpenAI.Audio.Transcription =
-            await openai.audio.transcriptions.create({
-              file: createReadStream(path.join(audioDirPath, file)),
-              model: 'whisper-1',
-              language: 'pl',
-            });
+          const transcription = await getTranscription({ filePath: path.join(audioDirPath, file) });
 
-          parsedTranscriptions[file.slice(0, -4)] = transcription.text;
+          parsedTranscriptions[file.slice(0, -4)] = transcription;
         }),
     );
 

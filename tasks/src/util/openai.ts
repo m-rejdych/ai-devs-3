@@ -1,3 +1,4 @@
+import { createReadStream } from 'fs';
 import type OpenAI from 'openai';
 
 import { openai } from '@/clients/openai';
@@ -5,7 +6,7 @@ import { openai } from '@/clients/openai';
 interface GetChatCompletionBaseArgs {
   context?: string;
   model?: OpenAI.ChatCompletionCreateParams['model'];
-  temperature?: number;
+  temperature?: OpenAI.ChatCompletionCreateParams['temperature'];
 }
 
 interface GetChatCompletionQueryArgs extends GetChatCompletionBaseArgs {
@@ -17,6 +18,13 @@ interface GetChatCompletionMessagesArgs extends GetChatCompletionBaseArgs {
 }
 
 type GetChatCompletionArgs = GetChatCompletionQueryArgs | GetChatCompletionMessagesArgs;
+
+interface GetTranscriptionArgs {
+  filePath: string;
+  model?: OpenAI.Audio.TranscriptionCreateParams['model'];
+  language?: OpenAI.Audio.TranscriptionCreateParams['language'];
+  temperature?: OpenAI.Audio.TranscriptionCreateParams['temperature'];
+}
 
 export async function getChatCompletion({
   context,
@@ -43,4 +51,29 @@ export async function getChatCompletion({
   });
 
   return response.choices[0]?.message.content ?? null;
+}
+
+export async function getTranscription({
+  filePath,
+  model = 'whisper-1',
+  language = 'pl',
+  ...rest
+}: GetTranscriptionArgs): Promise<string> {
+  const { text } = await openai.audio.transcriptions.create({
+    file: createReadStream(filePath),
+    model,
+    language,
+    ...rest,
+  });
+
+  return text;
+}
+
+export async function getTranscriptionCompletion(
+  transcriptionArgs: GetTranscriptionArgs,
+  completionParams?: GetChatCompletionBaseArgs,
+): Promise<string | null> {
+  const transcription = await getTranscription(transcriptionArgs);
+
+  return getChatCompletion({ query: transcription, ...completionParams });
 }

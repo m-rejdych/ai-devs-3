@@ -1,4 +1,4 @@
-interface SubmitResponseData {
+interface MessageResponse {
   code: number;
   message: string;
 }
@@ -24,7 +24,7 @@ export async function submit(
   task: string,
   answer: unknown,
   target: 'poligon' | 'central' = 'central',
-): Promise<SubmitResponseData> {
+): Promise<MessageResponse> {
   const response = await fetch(getTargetSubmitUrl(target) as string, {
     method: 'POST',
     headers: {
@@ -37,7 +37,7 @@ export async function submit(
     }),
   });
 
-  return response.json() as Promise<SubmitResponseData>;
+  return response.json() as Promise<MessageResponse>;
 }
 
 export async function queryDb(task: string, query: string): Promise<DbResponseData> {
@@ -54,4 +54,34 @@ export async function queryDb(task: string, query: string): Promise<DbResponseDa
   });
 
   return response.json() as Promise<DbResponseData>;
+}
+
+export async function getPeople(name: string): Promise<MessageResponse> {
+  const response = await fetch(`${process.env.CENTRAL_API_URL}/people`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      apikey: process.env.AI_DEVS_API_KEY,
+      query: name,
+    }),
+  });
+
+  return response.json() as Promise<MessageResponse>;
+}
+
+export async function getPlaces(name: string): Promise<MessageResponse> {
+  const response = await fetch(`${process.env.CENTRAL_API_URL}/places`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      apikey: process.env.AI_DEVS_API_KEY,
+      query: name,
+    }),
+  });
+
+  return response.json() as Promise<MessageResponse>;
 }

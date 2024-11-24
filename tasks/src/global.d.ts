@@ -9,5 +9,8 @@ declare namespace NodeJS {
     OLLAMA_API_URL?: string;
     QDRANT_API_KEY?: string;
     QDRANT_URL?: string;
+    NEO4J_URL?: string;
+    NEO4J_USERNAME?: string;
+    NEO4J_PASSWORD?: string;
   }
 }

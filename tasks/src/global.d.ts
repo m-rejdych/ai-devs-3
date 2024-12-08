@@ -12,5 +12,7 @@ declare namespace NodeJS {
     NEO4J_URL?: string;
     NEO4J_USERNAME?: string;
     NEO4J_PASSWORD?: string;
+    SERVER_PORT?: string;
+    SERVER_PUBLIC_URL: string;
   }
 }
